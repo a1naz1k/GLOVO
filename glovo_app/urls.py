@@ -5,6 +5,7 @@ from rest_framework import routers
 
 router = routers.SimpleRouter()
 router.register(r'user', UserProfileViewSet, basename='users')
+router.register(r'category', CategoryViewSet, basename='category')
 router.register(r'combos', ProductComboViewSet, basename='combos')
 router.register(r'cart', CartViewSet, basename='cart_list')
 router.register(r'cart_item', CartItemViewSet, basename='cart_items')
@@ -15,9 +16,9 @@ router.register(r'courier', CourierViewSet, basename='courier')
 
 
 urlpatterns = [
-    # path('register/', RegisterView.as_view(), name='register'),
-    # path('login/', CustomLoginView.as_view(), name='login'),
-    # path('logout/', LogoutView.as_view(), name='logout'),
+    path('register/', RegisterView.as_view(), name='register'),
+    path('login/', CustomLoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(), name='logout'),
 
     path('', include(router.urls)),
     path('store/', StoreListAPIView.as_view(), name='store_list'),

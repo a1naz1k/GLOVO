@@ -20,7 +20,7 @@ class ProductFilter(FilterSet):
 
 class ProductComboFilter(FilterSet):
     class Meta:
-        model = Product
+        model = ProductCombo
         fields = {
             'price': ['gt', 'lt'],
         }

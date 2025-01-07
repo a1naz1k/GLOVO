@@ -26,13 +26,13 @@ class Category(models.Model):
 class Store(models.Model):
     store_name = models.CharField(max_length=64)
     store_image = models.ImageField(upload_to='store_images/', blank=True, null=True)
-    category = models.CharField(max_length=100)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
     description = models.TextField(blank=True, null=True)
     address = models.CharField(max_length=64)
     owner = models.ForeignKey(UserProfile, related_name="stores", on_delete=models.CASCADE)
-    # avg_rating = models.FloatField(default=0)
-    # total_people = models.CharField(max_length=10, default='0+')
-    # check_good = models.CharField(max_length=10, default='0%')
+    avg_rating = models.FloatField(default=0)
+    total_people = models.CharField(max_length=10, default='0+')
+    check_good = models.CharField(max_length=10, default='0%')
 
     def __str__(self):
         return self.store_name
@@ -167,3 +167,16 @@ class CourierReview(models.Model):
     def __str__(self):
         return f'{self.courier}, {self.rating}'
 
+
+class Chat(models.Model):
+    person = models.ManyToManyField(UserProfile)
+    created_date = models.DateTimeField(auto_now_add=True)
+
+
+class Massage(models.Model):
+    chat = models.ForeignKey(Chat, on_delete=models.CASCADE)
+    author = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    text = models.TextField(null=True, blank=True)
+    image = models.ImageField(upload_to='images', null=True, blank=True)
+    video = models.ImageField(upload_to='videos', null=True, blank=True)
+    created_date = models.DateTimeField(auto_now_add=True)

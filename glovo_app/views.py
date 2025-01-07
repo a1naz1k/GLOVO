@@ -10,7 +10,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 
 class RegisterView(generics.CreateAPIView):
-    serializer_class = UserProfileSerializer
+    serializer_class = UserSerializer
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -20,7 +20,7 @@ class RegisterView(generics.CreateAPIView):
 
 
 class CustomLoginView(TokenObtainPairView):
-    serializer_class = LoginSerializer
+    serializer_class = LoginsSerializer
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -48,8 +48,11 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
 
+    def get_queryset(self):
+        return UserProfile.objects.filter(id=self.request.user.id)
 
-class CategoryListAPIView(generics.ListAPIView):
+
+class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
@@ -126,10 +129,16 @@ class CartViewSet(viewsets.ModelViewSet):
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
 
+    def get_queryset(self):
+        return Cart.objects.filter(client_cart=self.request.user)
+
 
 class CartItemViewSet(viewsets.ModelViewSet):
     queryset = CartItem.objects.all()
     serializer_class = CartItemSerializer
+
+    def get_queryset(self):
+        return CartItem.objects.filter(client_cart=self.request.user)
 
 
 class OrderViewSet(viewsets.ModelViewSet):

@@ -11,21 +11,6 @@ class UserSerializer(serializers.ModelSerializer):
                   'phone_number')
         extra_kwargs = {'password': {'write_only': True}}
 
-    def create(self, validated_data):
-        user = UserProfile.objects.create_user(**validated_data)
-        return user
-
-
-class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField()
-    password = serializers.CharField(write_only=True)
-
-    def validate(self, data):
-        user = authenticate(**data)
-        if user and user.is_active:
-            return user
-        raise serializers.ValidationError('Неверные учетные данные')
-
     def to_representation(self, instance):
         refresh = RefreshToken.for_user(instance)
         return {
@@ -37,11 +22,37 @@ class LoginSerializer(serializers.Serializer):
             'refresh': str(refresh),
         }
 
+    def create(self, validated_data):
+        user = UserProfile.objects.create_user(**validated_data)
+        return user
+
+
+class LoginsSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        user = authenticate(**data)
+        if user and user.is_active:
+            return user
+        raise serializers.ValidationError('Неверные учетные данные')
+
+    # def to_representation(self, instance):
+    #     refresh = RefreshToken.for_user(instance)
+    #     return {
+    #         'user': {
+    #             'username': instance.username,
+    #             'email': instance.email,
+    #         },
+    #         'access': str(refresh.access_token),
+    #         'refresh': str(refresh),
+    #     }
+
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = '__all__'
+        fields = ['username']
 
 
 class UserProfileSimpleSerializer(serializers.ModelSerializer):
@@ -104,25 +115,25 @@ class ProductCreateComboSerializer(serializers.ModelSerializer):
 class CartSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cart
-        fields = '__all__'
+        fields = ['user']
 
 
 class CartItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = CartItem
-        fields = '__all__'
+        fields = ['product', 'cart', 'quantity']
 
 
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
-        fields = '__all__'
+        fields = ['client', 'cart', 'status', 'delivery_address', 'courier', 'created_date']
 
 
 class CourierSerializer(serializers.ModelSerializer):
     class Meta:
         model = Courier
-        fields = '__all__'
+        fields = ['user', 'current_orders', 'status']
 
 
 class StoreReviewSerializer(serializers.ModelSerializer):
@@ -137,21 +148,21 @@ class StoreReviewSerializer(serializers.ModelSerializer):
 class CourierReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourierReview
-        fields = '__all__'
+        fields = ['client', 'courier', 'rating', 'created_date']
 
 
 class StoreListSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
-    avg_rating = serializers.SerializerMethodField()
+    avg_ratings = serializers.SerializerMethodField()
     total_people = serializers.SerializerMethodField()
     check_good = serializers.SerializerMethodField()
 
     class Meta:
         model = Store
-        fields = ['id', 'store_name', 'store_image', 'category', 'avg_rating', 'total_people', 'check_good']
+        fields = ['id', 'store_name', 'store_image','category','avg_ratings', 'total_people', 'check_good']
 
-    def get_avg_rating(self, obj):
-        return obj.get_avg_rating()
+    def get_avg_ratings(self, obj):
+        return obj.get_avg_ratings()
 
     def get_total_people(self, obj):
         return obj.get_total_people()
